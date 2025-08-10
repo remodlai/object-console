@@ -70,3 +70,13 @@ Recent changes to the official MinIO Console have removed several important feat
 - Continue community-driven development and improvements
 - Keep the console fully open source under AGPL v3
 - Ensure users have access to a feature-rich, self-hosted management UI
+
+# Common Issues
+
+## 1. I updated the server location and I can't login anymore
+
+If the server location is updated in Configuration => Region, you'll need to add one more environment variable so you can login again:
+
+```bash
+CONSOLE_MINIO_REGION="region-name" # i.e. eu-west-1
+```
