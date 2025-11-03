@@ -690,11 +690,14 @@ func getBucketInfo(ctx context.Context, client MinioClient, adminClient MinioAdm
 			bucketAccess = policyAccess2consoleAccess(policyAccess)
 		}
 	}
-	bucketTags, err := client.GetBucketTagging(ctx, bucketName)
-	if err != nil {
-		// we can tolerate this errors
-		ErrorWithContext(ctx, fmt.Errorf("error getting bucket tags: %v", err))
-	}
+    bucketTags, err := client.GetBucketTagging(ctx, bucketName)
+    if err != nil {
+        // Tolerate buckets without tags; avoid noisy logs for NoSuchTagSet
+        errResp := minio.ToErrorResponse(err)
+        if errResp.Code != "NoSuchTagSet" { // unexpected errors only
+            ErrorWithContext(ctx, fmt.Errorf("error getting bucket tags: %v", err))
+        }
+    }
 	bucketDetails := &models.BucketDetails{}
 	if bucketTags != nil {
 		bucketDetails.Tags = bucketTags.ToMap()

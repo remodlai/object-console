@@ -65,9 +65,17 @@ func (wsc *wsMinioClient) objectManager(session *models.Principal) {
 			default:
 			}
 
-			mType, message, err := wsc.conn.readMessage()
+            mType, message, err := wsc.conn.readMessage()
 			if err != nil {
-				LogInfo("Error while reading objectManager message: %s", err)
+				// Ignore normal/expected websocket closures to avoid noisy logs
+				if ce, ok := err.(*websocket.CloseError); ok {
+                    if ce.Code == websocket.CloseGoingAway || ce.Code == websocket.CloseNormalClosure || ce.Code == 1005 { // CloseNoStatusReceived
+						return
+					}
+				}
+                if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseNormalClosure, 1005) {
+					LogInfo("Error while reading objectManager message: %s", err)
+				}
 				return
 			}
 
@@ -279,9 +287,17 @@ func (wsc *wsMinioClient) objectManager(session *models.Principal) {
 			return
 		}
 
-		err = wsc.conn.writeMessage(websocket.TextMessage, jsonData)
+        err = wsc.conn.writeMessage(websocket.TextMessage, jsonData)
 		if err != nil {
-			LogInfo("Error while writing the message: %s", err)
+			// Ignore normal/expected websocket closures to avoid noisy logs
+			if ce, ok := err.(*websocket.CloseError); ok {
+                if ce.Code == websocket.CloseGoingAway || ce.Code == websocket.CloseNormalClosure || ce.Code == 1005 { // CloseNoStatusReceived
+					return
+				}
+			}
+            if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseNormalClosure, 1005) {
+				LogInfo("Error while writing the message: %s", err)
+			}
 			return
 		}
 	}

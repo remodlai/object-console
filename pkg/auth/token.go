@@ -318,8 +318,9 @@ func GetTokenFromRequest(r *http.Request) (string, error) {
 	if err != nil {
 		return "", ErrNoAuthToken
 	}
-	currentTime := time.Now()
-	if tokenCookie.Expires.After(currentTime) {
+	// Only consider expiration if Expires was set on the cookie; request cookies
+	// generally do not include Expires/Max-Age, so this check is best-effort.
+	if !tokenCookie.Expires.IsZero() && tokenCookie.Expires.Before(time.Now()) {
 		return "", ErrTokenExpired
 	}
 	return strings.TrimSpace(tokenCookie.Value), nil
