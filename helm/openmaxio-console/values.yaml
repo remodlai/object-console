@@ -1,0 +1,61 @@
+replicaCount: 1
+
+image:
+  repository: remodlai/openmaxio-console
+  pullPolicy: IfNotPresent
+  tag: "v1.7.6"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  automount: true
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+podLabels: {}
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 65532
+  fsGroup: 65532
+
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+    - ALL
+  seccompProfile:
+    type: RuntimeDefault
+
+service:
+  type: ClusterIP
+  port: 9090
+  targetPort: 9090
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+env:
+  # MinIO server endpoint (required)
+  CONSOLE_MINIO_SERVER: "https://minio.minio-aws.svc.cluster.local"
+  # Session encryption secrets (required)
+  CONSOLE_PBKDF_PASSPHRASE: "changeme-secret-passphrase"
+  CONSOLE_PBKDF_SALT: "changeme-secret-salt"
+  # Optional: MinIO credentials
+  # CONSOLE_MINIO_ACCESS_KEY: ""
+  # CONSOLE_MINIO_SECRET_KEY: ""
